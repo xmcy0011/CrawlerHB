@@ -10,8 +10,8 @@ import (
 func TestHBWebSite_GetUserPassSd(t *testing.T) {
 	logger.InitLogger("log.log", "DEBUG")
 
-	var hb = &HBWebSite{Host: "http://110.249.223.71:9030"}
-	user, pwd, sid, err := hb.GetUserPassSd()
+	var hb = &HBWebSite{host: "http://110.249.223.71:9030"}
+	user, pwd, sid, err := hb.getUserPassSd()
 	if err != nil {
 		t.Failed()
 		return
@@ -23,8 +23,8 @@ func TestHBWebSite_GetUserPassSd(t *testing.T) {
 func TestHBWebSite_Post(t *testing.T) {
 	logger.InitLogger("log.log", "DEBUG")
 
-	var hb = &HBWebSite{Host: "http://110.249.223.71:9030"}
-	data, err := hb.Post("/onlinemonitor/mon/psBaseInfo/systemName", nil, "application/json")
+	var hb = &HBWebSite{host: "http://110.249.223.71:9030"}
+	data, err := hb.post("/onlinemonitor/mon/psBaseInfo/systemName", nil, "application/json")
 	if err != nil {
 		t.Failed()
 		return
@@ -36,8 +36,8 @@ func TestHBWebSite_Post(t *testing.T) {
 func TestHBWebSite_GetSessionID(t *testing.T) {
 	logger.InitLogger("log.log", "DEBUG")
 
-	var hb = &HBWebSite{Host: "http://110.249.223.71:9030"}
-	id, err := hb.GetSessionID()
+	var hb = &HBWebSite{host: "http://110.249.223.71:9030"}
+	id, err := hb.getSessionID()
 	if err != nil {
 		t.Failed()
 		return
@@ -49,19 +49,19 @@ func TestHBWebSite_GetSessionID(t *testing.T) {
 func TestHBWebSite_PostWitchCookie(t *testing.T) {
 	logger.InitLogger("log.log", "DEBUG")
 
-	var hb = &HBWebSite{Host: "http://110.249.223.71:9030"}
-	id, err := hb.GetSessionID()
+	var hb = &HBWebSite{host: "http://110.249.223.71:9030"}
+	id, err := hb.getSessionID()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("sessionId:%s", id)
 
-	resp, err := hb.GetQrCode(id)
+	resp, err := hb.getQrCode(id)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Logf("GetQrCode %s", resp)
+	t.Logf("getQrCode %s", resp)
 	time.Sleep(time.Second * 2)
 
 	type Code struct {
@@ -77,59 +77,19 @@ func TestHBWebSite_PostWitchCookie(t *testing.T) {
 	}
 	t.Logf("xLenght:%d,timeTemple:%s", code.XLenght, code.TimeTemple)
 
-	resp, err = hb.CheckQrCode(id, code.TimeTemple, code.XLenght)
+	resp, err = hb.checkQrCode(id, code.TimeTemple, code.XLenght)
 	if err != nil {
 		t.Error(err)
 	} else {
-		t.Logf("CheckQrCode %s", resp)
+		t.Logf("checkQrCode %s", resp)
 	}
 }
 
 func TestHBWebSite_Login(t *testing.T) {
 	logger.InitLogger("log.log", "DEBUG")
 
-	var hb = &HBWebSite{Host: "http://110.249.223.71:9030"}
-	user, pwd, sid, err := hb.GetUserPassSd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("GetUserPassSd ,user=%s,pwd=%s,sid=%s", user, pwd, sid)
-
-	id, err := hb.GetSessionID()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("sessionId:%s", id)
-
-	resp, err := hb.GetQrCode(id)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Logf("GetQrCode %s", resp)
-	time.Sleep(time.Second * 2)
-
-	type Code struct {
-		XLenght    int    `json:"xLenght"`
-		YLenght    int    `json:"yLenght"`
-		PicNum     string `json:"picNum"`
-		TimeTemple string `json:"timeTemple"`
-	}
-	code := &Code{}
-	err = json.Unmarshal([]byte(resp), code)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("xLenght:%d,timeTemple:%s", code.XLenght, code.TimeTemple)
-
-	resp, err = hb.CheckQrCode(id, code.TimeTemple, code.XLenght)
-	if err != nil {
-		t.Fatal(err)
-	} else {
-		t.Logf("CheckQrCode %s", resp)
-	}
-
-	resp, err = hb.Login(id, user, pwd, sid)
+	var hb = &HBWebSite{}
+	resp, err := hb.Login("http://110.249.223.71:9030")
 	if err != nil {
 		t.Fatal(err)
 	} else {
